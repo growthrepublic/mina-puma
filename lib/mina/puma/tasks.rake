@@ -51,7 +51,11 @@ namespace :puma do
   task phased_restart: :environment do
     queue! %[
       if [ -e '#{pumactl_socket}' ]; then
-        cd #{deploy_to}/#{current_path} && #{pumactl_cmd} -S #{puma_state} --pidfile #{puma_pid} phased-restart
+        if [ -e '#{puma_config}' ]; then
+          cd #{deploy_to}/#{current_path} && #{pumactl_cmd} -F #{puma_config} phased-restart
+        else
+          cd #{deploy_to}/#{current_path} && #{pumactl_cmd} -S #{puma_state} --pidfile #{puma_pid} phased-restart
+        fi
       else
         echo 'Puma is not running!';
       fi
